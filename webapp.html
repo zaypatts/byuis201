@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Isaiah Patterson - Play a Game</title>
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css" />
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+        <div class="container px-4 px-lg-5">
+                <ul class="navbar-nav ms-auto py-4 py-lg-0">
+                    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="index.html" style=" color:black">Home</a></li>
+                    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="scratch.html" style=" color:black">Scratch Page</a></li>
+                    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="webapp.html" style=" color:black">Play a Game</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dino Jump Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #instructions {
+      margin-bottom: 15px;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    #game {
+      position: relative;
+      width: 600px;
+      height: 200px;
+      background-color: white;
+      border: 2px solid #000;
+      overflow: hidden;
+    }
+
+    #dino {
+      width: 40px;
+      height: 40px;
+      background-color: green;
+      position: absolute;
+      bottom: 0;
+      left: 50px;
+    }
+
+    #cactus {
+      width: 20px;
+      height: 40px;
+      background-color: red;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      animation: moveCactus 2s linear infinite;
+    }
+
+    @keyframes moveCactus {
+      0% { right: -20px; }
+      100% { right: 620px; }
+    }
+
+    .jump {
+      animation: jump 0.5s ease-out;
+    }
+
+    @keyframes jump {
+      0% { bottom: 0; }
+      50% { bottom: 80px; }
+      100% { bottom: 0; }
+    }
+
+    #score {
+      margin-top: 10px;
+      font-size: 1.2rem;
+    }
+
+    #game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: red;
+      display: none;
+      background: white;
+      padding: 10px 20px;
+      border: 2px solid red;
+      border-radius: 10px;
+    }
+
+    #restart-btn {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      display: none;
+      cursor: pointer;
+      background-color: #444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #restart-btn:hover {
+      background-color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Dino Jump Game</h1>
+  <div id="instructions">Press <strong>Spacebar</strong> to jump over the cactus!</div>
+
+  <div id="game">
+    <div id="dino"></div>
+    <div id="cactus"></div>
+    <div id="game-over">Game Over</div>
+  </div>
+
+  <div id="score">Score: 0</div>
+  <button id="restart-btn">Restart Game</button>
+
+  <script>
+    const dino = document.getElementById("dino");
+    const cactus = document.getElementById("cactus");
+    const gameOverText = document.getElementById("game-over");
+    const scoreDisplay = document.getElementById("score");
+    const restartBtn = document.getElementById("restart-btn");
+
+    let isGameOver = false;
+    let score = 0;
+    let scoreInterval;
+    let checkCollisionInterval;
+
+    function startGame() {
+      isGameOver = false;
+      score = 0;
+      gameOverText.style.display = "none";
+      restartBtn.style.display = "none";
+      cactus.style.animation = "moveCactus 2s linear infinite";
+      scoreDisplay.textContent = "Score: 0";
+
+      // Increase score over time
+      scoreInterval = setInterval(() => {
+        if (!isGameOver) {
+          score++;
+          scoreDisplay.textContent = "Score: " + score;
+        }
+      }, 200);
+
+      // Check collision
+      checkCollisionInterval = setInterval(() => {
+        let dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue("top"));
+        let cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue("right"));
+
+        if (cactusLeft > 540 && cactusLeft < 580 && dinoTop > 140) {
+          gameOver();
+        }
+      }, 10);
+    }
+
+    function gameOver() {
+      isGameOver = true;
+      cactus.style.animation = "none";
+      gameOverText.style.display = "block";
+      restartBtn.style.display = "inline-block";
+      clearInterval(scoreInterval);
+      clearInterval(checkCollisionInterval);
+    }
+
+    function restartGame() {
+      cactus.style.right = "-20px";
+      startGame();
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.code === "Space" && !dino.classList.contains("jump") && !isGameOver) {
+        dino.classList.add("jump");
+        setTimeout(() => {
+          dino.classList.remove("jump");
+        }, 500);
+      }
+    });
+
+    restartBtn.addEventListener("click", restartGame);
+
+    startGame(); // Initialize on page load
+  </script>
+
+</body>
+</html>
